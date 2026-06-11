@@ -44,3 +44,91 @@ body {
   text-transform: lowercase;
   line-height: 0.95;
 }
+
+.atlas-chatbox {
+  margin-top: 2rem;
+  width: 100%;
+  max-width: 600px;
+}
+
+.atlas-button {
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--foreground);
+  color: var(--background);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.atlas-actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  align-items: center;
+}
+
+.atlas-actions .atlas-button {
+  margin-top: 0;
+}
+
+.chat-history {
+  margin-top: 1.5rem;
+  width: 100%;
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem 1rem 1rem 1.2rem;
+  margin-left: 0.75rem;
+  background: #edf2f7;
+  border: 1px solid #cbd5e1;
+  border-left: 6px solid #94a3b8;
+  border-radius: 14px;
+  box-shadow: inset 0 2px 8px rgba(15, 23, 42, 0.12);
+}
+
+.chat-message {
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  max-width: 85%;
+}
+
+.chat-message--user {
+  align-self: flex-end;
+  background: #171717;
+  color: #ffffff;
+}
+
+.chat-message--atlas {
+  align-self: flex-start;
+  background: #f0f0f0;
+  color: #171717;
+}
+
+.chat-message .chat-timestamp {
+  font-size: 0.68rem;
+  line-height: 1;
+  margin-left: 0.35rem;
+  opacity: 0.95;
+  font-style: normal;
+}
+
+.chat-message--user .chat-timestamp {
+  color: #cbd5e1;
+}
+
+.chat-message--atlas .chat-timestamp {
+  color: #6b7280;
+}
+
+.chat-message--empty {
+  align-self: flex-start;
+  background: #eceff3;
+  color: #6b7280;
+}
