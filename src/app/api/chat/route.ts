@@ -10,12 +10,7 @@ export async function POST(request: Request) {
         const body = await request.json(); // Parse the incoming request body as JSON to extract the message sent by the user
         const completion = await openai.chat.completions.create({
             model: "gpt-4.1-mini", // Specify the model to use for generating chat completions
-            messages: [
-                {
-                    role: "user",
-                    content: body.message,
-                },
-            ],
+            messages: body.messages, // Pass the array of messages from the request body to the OpenAI API for generating a response
         });
         const atlasResponse = 
             completion.choices[0].message.content ?? "Sorry, I couldn't generate a response."; // Extract the generated message content from the OpenAI response, providing a fallback message in case of an error
@@ -26,7 +21,7 @@ export async function POST(request: Request) {
 
         return NextResponse.json(
             {
-                message: "Atlas encountered and error."
+                message: "Atlas encountered an error."
             },
             {
                 status: 500

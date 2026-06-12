@@ -28,15 +28,24 @@ export default function Home() {
     setChatHistory(prev => [...prev, newMessage]); // Update the chat history by adding the new user message to the existing array of messages
     setCurrentInput(""); // Clear the input field after adding the user's message to the chat history
 
+    const messagesForApi = [
+      ...chatHistory.map((msg) => ({
+        role: msg.sender.toLowerCase() === "user" ? "user" : "assistant", // Map the sender to the appropriate role for the API, using "user" for user messages and "assistant" for Atlas messages
+        content: msg.message, // Include the message content for the API
+      })),
+      {
+        role: "user",
+        content: userMessage, // Add the current user message to the array of messages to be sent to the API
+      }
+    ]
+
     try {
       const response = await fetch("/api/chat", {  // Send a POST request to the /api/chat endpoint with the user's message in the request body
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ message: userMessage, 
-
-       }),
+        body: JSON.stringify({ message: userMessage, messages: messagesForApi }),
       });
       if (!response.ok) {
         throw new Error(`Server error: ${response.statusText}`); // Throw an error if the server response is not successful, including the status text for debugging purposes
