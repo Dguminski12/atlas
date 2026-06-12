@@ -13,33 +13,62 @@ export default function Home() {
   const [currentInput, setCurrentInput] = useState(""); // State to hold the current input value from the chatbox
   const [chatHistory, setChatHistory] = useState<Message[]>([]); // State to hold the history of chat messages, initialized as an empty array of type 'message'
 
-  const sendMessage = async () => { // Function to handle sending a message when the user clicks the send button or presses Enter
-    if (currentInput.trim() === "") return; // Prevent sending empty messages
-    
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ message: currentInput, 
-       }),
-    });
-    const data = await response.json();
+  const [isLoading, setIsLoading] = useState(false); // State to indicate whether a message is currently being sent, initialized as false
 
+  const sendMessage = async () => { // Function to handle sending a message when the user clicks the send button or presses Enter
+    const userMessage = currentInput; // Store the current input value in a variable to use for sending the message to the server
+    if (userMessage.trim() === "") return; // Prevent sending empty messages
+    setIsLoading(true); // Set the loading state to true when the message sending process starts
 
     const newMessage: Message = {  // Create a new message object with the sender as "user", the message content from currentInput, and a timestamp of the current time
       sender: "User",
-      message: currentInput,
+      message: userMessage,
       timestamp: new Date().toLocaleTimeString()
     };
-    const atlasMessage: Message = { 
-      sender: "Atlas", 
-      message: data.message, // Use the message from the server response as the content of the Atlas message
-      timestamp: new Date().toLocaleTimeString()
-    };
+    setChatHistory(prev => [...prev, newMessage]); // Update the chat history by adding the new user message to the existing array of messages
+    setCurrentInput(""); // Clear the input field after adding the user's message to the chat history
 
-    setChatHistory(prev => [...prev, newMessage, atlasMessage]); // Update the chat history by adding both the user's message and the Atlas response to the existing array
-    setCurrentInput(""); // Clear the input field after sending the message
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ message: userMessage, 
+
+       }),
+      });
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.statusText}`); // Throw an error if the server response is not successful, including the status text for debugging purposes
+      }
+      
+      const data: { message: string } = await response.json();
+
+      const atlasMessage: Message = { 
+        sender: "Atlas", 
+        message: data.message, // Use the message from the server response as the content of the Atlas message
+        timestamp: new Date().toLocaleTimeString()
+      };
+
+      setChatHistory(prev => [...prev, atlasMessage]); // Update the chat history by adding both the user's message and the Atlas response to the existing array
+    } 
+    catch (error) {
+      console.error("Error sending message:", error);
+
+      const errorMessage: Message = {
+        sender: "Atlas",
+        message: "Sorry, something went wrong.",
+        timestamp: new Date().toLocaleTimeString()
+      };
+    
+    
+      setChatHistory(prev => [...prev, errorMessage]); // Add an error message to the chat history if there's an error during the fetch request
+      return;
+    }
+    finally {
+      setIsLoading(false); // Ensure that the loading state is set back to false after the message sending process is complete, regardless of success or failure
+    }
+    
   }
 
   return (
@@ -57,7 +86,13 @@ export default function Home() {
         placeholder="Send a message..."
         className="atlas-chatbox" /> {/* Input field for the chatbox, with an onChange handler to update the currentInput state as the user types */}
       <div className="atlas-actions">
-        <button className="atlas-button" onClick={sendMessage}>Send</button>
+        <button 
+          className="atlas-button"
+          onClick={sendMessage}
+          disabled={isLoading} // Disable the button while a message is being sent
+        >
+          {isLoading ? "Sending..." : "Send"} {/* Show "Sending..." while the message is being sent */}
+        </button>
         <button className="atlas-button" onClick={() => setChatHistory([])}>Clear</button> {/* Button to clear the chat history by setting the chatHistory state back to an empty array */}
       </div>
       <div className="chat-history">
