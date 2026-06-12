@@ -13,16 +13,32 @@ export default function Home() {
   const [currentInput, setCurrentInput] = useState(""); // State to hold the current input value from the chatbox
   const [chatHistory, setChatHistory] = useState<Message[]>([]); // State to hold the history of chat messages, initialized as an empty array of type 'message'
 
-  const sendMessage = () => { // Function to handle sending a message when the user clicks the send button or presses Enter
+  const sendMessage = async () => { // Function to handle sending a message when the user clicks the send button or presses Enter
     if (currentInput.trim() === "") return; // Prevent sending empty messages
+    
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ message: currentInput, 
+       }),
+    });
+    const data = await response.json();
 
-    const newMessage = {  // Create a new message object with the sender as "user", the message content from currentInput, and a timestamp of the current time
-      sender: "user",
+
+    const newMessage: Message = {  // Create a new message object with the sender as "user", the message content from currentInput, and a timestamp of the current time
+      sender: "User",
       message: currentInput,
       timestamp: new Date().toLocaleTimeString()
     };
+    const atlasMessage: Message = { 
+      sender: "Atlas", 
+      message: data.message, // Use the message from the server response as the content of the Atlas message
+      timestamp: new Date().toLocaleTimeString()
+    };
 
-    setChatHistory([...chatHistory, newMessage]); // Update the chat history by adding the new message to the existing array
+    setChatHistory(prev => [...prev, newMessage, atlasMessage]); // Update the chat history by adding both the user's message and the Atlas response to the existing array
     setCurrentInput(""); // Clear the input field after sending the message
   }
 
