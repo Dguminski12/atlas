@@ -29,7 +29,7 @@ export default function Home() {
     setCurrentInput(""); // Clear the input field after adding the user's message to the chat history
 
     try {
-      const response = await fetch("/api/chat", {
+      const response = await fetch("/api/chat", {  // Send a POST request to the /api/chat endpoint with the user's message in the request body
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -41,7 +41,7 @@ export default function Home() {
       if (!response.ok) {
         throw new Error(`Server error: ${response.statusText}`); // Throw an error if the server response is not successful, including the status text for debugging purposes
       }
-      
+
       const data: { message: string } = await response.json();
 
       const atlasMessage: Message = { 
